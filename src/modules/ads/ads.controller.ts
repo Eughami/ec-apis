@@ -15,7 +15,7 @@ import { AdsService } from './ads.service';
   query: {
     ...crudGeneralOptions.query,
     join: {
-      category: { eager: true },
+      category: { eager: true, allow: ['name'] },
       views: { eager: true },
       user: { eager: true },
     },
