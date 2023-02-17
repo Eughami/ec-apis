@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Request } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Crud, CrudController } from '@nestjsx/crud';
 import { crudGeneralOptions } from 'src/core-configs/crud.config';
 import { AdView } from 'src/entities/Ad-view.entity';
@@ -20,6 +21,7 @@ import { AdViewsService } from './ad-views.service';
     },
   },
 })
+@ApiTags('Ad Views')
 @Controller('adViews')
 export class AdViewsController implements CrudController<AdView> {
   constructor(public readonly service: AdViewsService) {}

@@ -1,4 +1,5 @@
 import { Controller } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Crud, CrudController } from '@nestjsx/crud';
 import { crudGeneralOptions } from 'src/core-configs/crud.config';
 import { Ad } from 'src/entities/Ad.entity';
@@ -21,6 +22,7 @@ import { AdsService } from './ads.service';
     },
   },
 })
+@ApiTags('Auth')
 @Controller('ads')
 export class AdsController implements CrudController<Ad> {
   constructor(public readonly service: AdsService) {}
