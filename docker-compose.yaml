@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  dahabo-api:
+    image: 'dahabo/api'
+    container_name: 'dahabo-api'
+    env_file:
+      - .env
+    ports:
+      - '35000:3500'
+    depends_on:
+      - postgres
+    links:
+      - postgres:postgres
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+  dahabo-ui:
+    image: 'dahabo/ui-app'
+    container_name: 'dahabo-ui'
+    #env_file:
+    #  - .env
+    environment:
+      REACT_APP_API_ENDPOINT_URL: http://localhost:33340/api/v1/admin
+    ports:
+      - '30000:3000'
+    depends_on:
+      - dahabo-api
+
+  postgres:
+    image: 'postgres:15.1'
+    container_name: 'dahabo-db'
+    env_file:
+      - .env
+    ports:
+      - '54320:5432'
+    volumes:
+      - ./docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
+      - dahabo_data:/var/lib/postgresql/data
+volumes:
+  dahabo_data:
