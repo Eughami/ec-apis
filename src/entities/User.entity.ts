@@ -9,11 +9,13 @@ import {
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Ad } from './Ad.entity';
 import { CoreEntity } from './core.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 const { CREATE, UPDATE } = CrudValidationGroups;
 
 @Entity()
 export class User extends CoreEntity {
+  @ApiProperty()
   @IsOptional({ groups: [UPDATE] })
   @IsNotEmpty({ groups: [CREATE] })
   @IsString()
@@ -21,6 +23,7 @@ export class User extends CoreEntity {
   @Column({ type: 'text', nullable: false })
   firstName: string;
 
+  @ApiProperty()
   @IsOptional({ groups: [UPDATE] })
   @IsNotEmpty({ groups: [CREATE] })
   @IsString()

@@ -8,6 +8,7 @@ import { AdViewsModule } from './modules/ad-views/ad-views.module';
 import { SeederModule } from './modules/seeder/seeder.module';
 import { LoggerModule } from 'nestjs-pino';
 import { LoggerConfig } from './core-configs/logger.config';
+import { FilesModule } from './modules/files/files.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [envConfig] }),
@@ -17,6 +18,7 @@ import { LoggerConfig } from './core-configs/logger.config';
     UsersModule,
     AdsModule,
     AdViewsModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [],

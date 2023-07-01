@@ -1,10 +1,16 @@
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Crud, CrudController } from '@nestjsx/crud';
+import { Crud, CrudController, Override } from '@nestjsx/crud';
 import { crudGeneralOptions } from 'src/core-configs/crud.config';
 import { Ad } from 'src/entities/Ad.entity';
 import { AdsService } from './ads.service';
-
+import { FilePayload, NewAdPayload } from 'src/interfaces/ad.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 @Crud({
   ...crudGeneralOptions,
   model: {
@@ -17,8 +23,9 @@ import { AdsService } from './ads.service';
     ...crudGeneralOptions.query,
     join: {
       category: { eager: true, allow: ['name'] },
-      views: { eager: true },
-      user: { eager: true },
+      attachment: { eager: false, allow: ['path', 'position'] },
+      views: { eager: false },
+      user: { eager: false },
     },
   },
 })
@@ -26,4 +33,21 @@ import { AdsService } from './ads.service';
 @Controller('ads')
 export class AdsController implements CrudController<Ad> {
   constructor(public readonly service: AdsService) {}
+
+  @Override('createOneBase')
+  @UseInterceptors(
+    FilesInterceptor('files', 4, {
+      limits: {
+        files: 4,
+        // parts: 11,
+        fileSize: 25 * 1024 * 1024,
+      },
+    }),
+  )
+  createOne(
+    @UploadedFiles() files: FilePayload[],
+    @Body() dto: NewAdPayload,
+  ): Promise<Ad> {
+    return this.service.createAd(dto, files);
+  }
 }

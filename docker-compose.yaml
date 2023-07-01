@@ -15,9 +15,10 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+      - /root/files:/files
 
   dahabo-ui:
-    image: 'dahabo/ui-app'
+    image: 'dahabo/ui'
     container_name: 'dahabo-ui'
     #env_file:
     #  - .env
