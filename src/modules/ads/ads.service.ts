@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { FilesService } from '../files/files.service';
 import { Category } from 'src/entities/Category.entity';
 import { FileTypes } from 'src/enums/filetypes.enum';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AdsService extends ExtendedCrudService<Ad> {
@@ -16,11 +17,13 @@ export class AdsService extends ExtendedCrudService<Ad> {
     @InjectRepository(Attachment) public attachmentRepo: Repository<Attachment>,
     @InjectRepository(Category) public categoryRepo: Repository<Category>,
     private readonly filesService: FilesService,
+    private readonly logger: PinoLogger,
   ) {
     super(repo, true);
+    this.logger.setContext(AdsService.name);
   }
 
-  async createAd(dto: NewAdPayload, files: FilePayload[]) {
+  async createAd(dto: NewAdPayload, files: FilePayload[] = []) {
     console.log(dto);
     try {
       const category = await this.categoryRepo.findOne({
@@ -61,6 +64,7 @@ export class AdsService extends ExtendedCrudService<Ad> {
 
       return ad;
     } catch (err) {
+      this.logger.error(err);
       throw new BadRequestException(err);
     }
   }
