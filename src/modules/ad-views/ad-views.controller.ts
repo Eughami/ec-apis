@@ -26,9 +26,9 @@ import { AdViewsService } from './ad-views.service';
 export class AdViewsController implements CrudController<AdView> {
   constructor(public readonly service: AdViewsService) {}
 
-  @Get('save/:id')
-  recordView(@Request() req, @Param('id') id: string) {
-    const userAgent = req.get('user-agent');
-    return this.service.recordView(userAgent, id);
-  }
+  // @Get('save/:id')
+  // recordView(@Request() req, @Param('id') id: string) {
+  //   const userAgent = req.get('user-agent');
+  //   return this.service.recordView(userAgent, id);
+  // }
 }

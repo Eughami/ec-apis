@@ -41,6 +41,9 @@ RUN npm run build
 
 # Set NODE_ENV environment variable
 ENV NODE_ENV production
+ENV NEW_RELIC_NO_CONFIG_FILE=true
+ENV NEW_RELIC_LOG=stdout
+ENV NEW_RELIC_SLOW_SQL_ENABLED=true
 
 # Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
 RUN yarn

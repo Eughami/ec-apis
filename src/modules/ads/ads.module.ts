@@ -7,10 +7,12 @@ import { AdsController } from './ads.controller';
 import { AdsService } from './ads.service';
 import { Attachment } from 'src/entities/attachment.entity';
 import { FilesModule } from '../files/files.module';
+import { Device } from 'src/entities/Device.entity';
+import { Log } from 'src/entities/Log.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Ad, AdView, Category, Attachment]),
+    TypeOrmModule.forFeature([Ad, AdView, Category, Attachment, Device, Log]),
     FilesModule,
   ],
   providers: [AdsService],

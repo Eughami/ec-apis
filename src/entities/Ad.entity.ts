@@ -16,6 +16,7 @@ import { CoreEntity } from './core.entity';
 import { User } from './User.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { Attachment } from './attachment.entity';
+import { Device } from './Device.entity';
 
 const { CREATE, UPDATE } = CrudValidationGroups;
 
@@ -86,4 +87,8 @@ export class Ad extends CoreEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @ManyToOne(() => Device)
+  @JoinColumn({ name: 'device_id' })
+  device: Device;
 }

@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Ad } from './Ad.entity';
 import { CoreEntity } from './core.entity';
+import { Device } from './Device.entity';
 
 @Entity()
 export class AdView extends CoreEntity {
@@ -28,4 +29,8 @@ export class AdView extends CoreEntity {
   @ManyToOne((type) => Ad)
   @JoinColumn()
   ad: Ad;
+
+  @ManyToOne((type) => Device)
+  @JoinColumn()
+  device: Device;
 }
