@@ -48,6 +48,9 @@ services:
     ports:
       - 32769:6379
     command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
 
 volumes:
   dahabo_data:
+  redis-data:
