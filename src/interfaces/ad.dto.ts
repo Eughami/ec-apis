@@ -6,6 +6,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
 } from 'class-validator';
 import { CategoriesEnum } from 'src/enums/categories.enum';
 import { FileTypes } from 'src/enums/filetypes.enum';
@@ -40,6 +41,10 @@ export class NewAdPayload {
   @IsOptional()
   @IsString()
   isService: string;
+
+  @ApiProperty()
+  @IsUUID('4')
+  deviceId: string;
 }
 
 export class FilePayload {

@@ -9,7 +9,6 @@ import { FilesService } from '../files/files.service';
 import { Category } from 'src/entities/Category.entity';
 import { FileTypes } from 'src/enums/filetypes.enum';
 import { PinoLogger } from 'nestjs-pino';
-import { Device } from 'src/entities/Device.entity';
 import { Log } from 'src/entities/Log.entity';
 
 @Injectable()
@@ -18,7 +17,6 @@ export class AdsService extends ExtendedCrudService<Ad> {
     @InjectRepository(Ad) public repo: Repository<Ad>,
     @InjectRepository(Attachment) public attachmentRepo: Repository<Attachment>,
     @InjectRepository(Category) public categoryRepo: Repository<Category>,
-    @InjectRepository(Device) public deviceRepo: Repository<Device>,
     @InjectRepository(Log) public logRepo: Repository<Log>,
     private readonly filesService: FilesService,
     private readonly logger: PinoLogger,
@@ -41,6 +39,7 @@ export class AdsService extends ExtendedCrudService<Ad> {
         isService: dto.isService === 'false',
         phone: dto.phone,
         category,
+        device: { id: dto.deviceId },
       });
       console.log({ ad });
 
@@ -79,16 +78,6 @@ export class AdsService extends ExtendedCrudService<Ad> {
    */
   async ActivateAd(id: string) {
     this.repo.update(id, { isVerified: true });
-  }
-
-  /**
-   * * this is to save a new device no need to create a new module just for this endpoint
-   * @param dto
-   * @returns Device
-   */
-  async newDevice(dto: Partial<Device>) {
-    const device = await this.deviceRepo.save(dto);
-    return device;
   }
 
   /**

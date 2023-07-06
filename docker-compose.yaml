@@ -10,8 +10,10 @@ services:
       - '35000:3500'
     depends_on:
       - postgres
+      - rediscache
     links:
       - postgres:postgres
+      - rediscache:rediscache
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
@@ -39,5 +41,13 @@ services:
     volumes:
       - ./docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
       - dahabo_data:/var/lib/postgresql/data
+
+  rediscache:
+    image: redis
+    container_name: redis-cache
+    ports:
+      - 32769:6379
+    command: redis-server --save 60 1 --loglevel warning
+
 volumes:
   dahabo_data:

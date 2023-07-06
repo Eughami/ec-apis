@@ -1,8 +1,9 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { CoreEntity } from './core.entity';
 import { Ad } from './Ad.entity';
 import { AdView } from './Ad-view.entity';
 import { Log } from './Log.entity';
+import { Category } from './Category.entity';
 
 @Entity()
 export class Device extends CoreEntity {
@@ -59,4 +60,8 @@ export class Device extends CoreEntity {
 
   @OneToMany(() => Log, (log) => log.device)
   deviceLogs: Log[];
+
+  @ManyToMany(() => Category)
+  @JoinTable()
+  favoriteCategories: Category[];
 }

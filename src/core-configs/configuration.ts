@@ -7,4 +7,8 @@ export const envConfig = () => ({
     database: process.env.POSTGRES_DATABASE,
     schema: process.env.POSTGRES_DATABASE_SCHEMA,
   },
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT),
+  },
 });
