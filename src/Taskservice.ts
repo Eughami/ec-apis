@@ -7,6 +7,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { HDT } from './entities/hdt.entity';
 import { Ad } from './entities/Ad.entity';
 import { NotificationService } from './modules/notification/notification.service';
+import { DeviceFavNotifications } from './interfaces/notification.dto';
 
 @Injectable()
 export class TasksService {
@@ -45,7 +46,11 @@ export class TasksService {
       };
       fetch('https://exp.host/--/api/v2/push/send', requestOptions)
         .then((res) => {
-          console.log(res);
+          res
+            .json()
+            .then((js) =>
+              this.logger.info(js, 'Receipt for HDT notifications'),
+            );
           this.HDTRepo.softRemove(nt);
         })
         .catch((err) => this.logger.error(err));
@@ -67,43 +72,65 @@ export class TasksService {
     this.sendNotification();
   }
 
-  @Cron(CronExpression.EVERY_MINUTE, { timeZone: 'Africa/Djibouti' })
-  async handleFavorites() {
-    this.notificationJobProducerService.scheduleNotificationJob(
-      {
-        ds: 'random shit',
-        token: 'Expotoken',
-        time: `job added at ${new Date().toISOString()}`,
-      },
-      300000,
-    );
-    // const twoHoursAgo = new Date();
-    // twoHoursAgo.setHours(twoHoursAgo.getHours() - 10);
+  @Cron('0 10 * * *', { timeZone: 'Africa/Djibouti' })
+  async handleMorningnFavorites() {
+    this.sendFavoritesNotifications(12);
+  }
 
-    // // get all ads within the last 1-2 hour and get unique categories
-    // const allAds = await this.adRepo
-    //   .createQueryBuilder('ads')
-    //   .leftJoinAndSelect('ads.category', 'category')
-    //   .select('category.name', 'categoryName')
-    //   .where('ads.createdAt > :dd', { dd: twoHoursAgo })
-    //   .groupBy('category.name')
-    //   .getRawMany();
+  @Cron('0 16 * * *', { timeZone: 'Africa/Djibouti' })
+  async handleAfternoonFavorites() {
+    this.sendFavoritesNotifications(6);
+  }
 
-    // for (const category of allAds.map((a) => a.categoryName)) {
-    //   const ds = await this.deviceRepo
-    //     .createQueryBuilder('devices')
-    //     .leftJoinAndSelect('devices.favoriteCategories', 'favoriteCategories')
-    //     .where('favoriteCategories.name = :catName', { catName: category })
-    //     .getMany();
-    //   // Await 5min between each category notification
-    //   // await new Promise((resolve) => setTimeout(resolve, 10000));
-    //   console.log({ category, ds });
-    //   if (ds.length) {
-    //     console.log('Go to the next category');
-    //   }
-    // }
-    // for each category fetch devices having that category as favorite
-    // ads each category as a notification per device
-    // send a batch to each device
+  @Cron('53 15 * * *', { timeZone: 'Africa/Djibouti' })
+  async handleNightFavorites() {
+    this.sendFavoritesNotifications(5);
+  }
+
+  async sendFavoritesNotifications(numOfHour: number) {
+    const xHours = new Date();
+    xHours.setHours(xHours.getHours() - numOfHour);
+    // get all ads within the last  xHour and get unique categories
+    const allAds = await this.adRepo
+      .createQueryBuilder('ads')
+      .leftJoinAndSelect('ads.category', 'category')
+      .select('category.name', 'categoryName')
+      .where('ads.createdAt > :dd', { dd: xHours })
+      .groupBy('category.name')
+      .getRawMany();
+
+    const categoriesName = allAds.map((a) => a.categoryName);
+    const ds = await this.deviceRepo
+      .createQueryBuilder('devices')
+      .leftJoinAndSelect('devices.favoriteCategories', 'favoriteCategories')
+      .where('favoriteCategories.name IN (:...categories)', {
+        categories: categoriesName,
+      })
+      .andWhere('devices.sendNotification = true')
+      .getMany();
+
+    const devices: DeviceFavNotifications[] = [];
+    for (const device of ds) {
+      devices.push({
+        [device.token]: this.findCommonElements(
+          device.favoriteCategories.map((c) => c.name),
+          categoriesName,
+        ),
+      });
+    }
+    // TODO. Handle sending notification here and put the check for receipts as a job with a 30m delay
+    this.notificationJobProducerService.scheduleNotificationJob(devices);
+  }
+  findCommonElements(array1, array2) {
+    const set1 = new Set(array1);
+    const commonElements = [];
+
+    for (const element of array2) {
+      if (set1.has(element)) {
+        commonElements.push(element);
+      }
+    }
+
+    return commonElements;
   }
 }

@@ -2,6 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
+import { DeviceFavNotifications } from 'src/interfaces/notification.dto';
 
 @Injectable()
 export class NotificationService {
@@ -9,13 +10,7 @@ export class NotificationService {
     @InjectQueue('notification') private readonly notificationQueue: Queue,
   ) {}
 
-  async scheduleNotificationJob(job /*: NotificationJobDTO*/, delay: number) {
+  async scheduleNotificationJob(job: DeviceFavNotifications[], delay = 0) {
     await this.notificationQueue.add(job, { delay });
-    console.log(
-      'timestamp : ',
-      new Date().toISOString(),
-      '. Added a new job to the queue : ',
-      job,
-    );
   }
 }

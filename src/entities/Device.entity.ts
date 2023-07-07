@@ -52,6 +52,9 @@ export class Device extends CoreEntity {
   @Column({ type: 'bigint', nullable: true })
   totalMemory: number;
 
+  @Column({ type: 'boolean', default: true })
+  sendNotification: boolean;
+
   @OneToMany(() => Ad, (ad) => ad.device)
   deviceAds: Ad[];
 

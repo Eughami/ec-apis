@@ -18,6 +18,8 @@ import { DeviceModule } from './modules/device/device.module';
 import { Ad } from './entities/Ad.entity';
 import { BullModule } from '@nestjs/bull';
 import { NotificationModule } from './modules/notification/notification.module';
+import { APP_FILTER } from '@nestjs/core';
+import { CustomExceptionFilter } from './custom-exception-filter';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Device, HDT, Ad]),
@@ -44,6 +46,12 @@ import { NotificationModule } from './modules/notification/notification.module';
     NotificationModule,
   ],
   controllers: [],
-  providers: [TasksService],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: CustomExceptionFilter,
+    },
+    TasksService,
+  ],
 })
 export class AppModule {}

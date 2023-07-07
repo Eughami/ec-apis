@@ -55,7 +55,7 @@ export class AdsController implements CrudController<Ad> {
 
   @Post('startup')
   startup(@Body() body: Partial<Log>) {
-    this.service.startup(body);
+    return this.service.startup(body);
   }
 
   // TODO.Add an endpoint to get the top viewed ads for last week/month
