@@ -14,7 +14,7 @@ export class DeviceController {
     return this.service.newDevice(dto);
   }
 
-  @Post('fav-cat')
+  @Post('fav')
   favCat(@Body() dto: FavCat) {
     return this.service.favCat(dto);
   }
@@ -22,5 +22,10 @@ export class DeviceController {
   @Get(':id')
   favorites(@Query() dto: DeviceQueryDto) {
     return this.service.getDeviceWithFav(dto.id);
+  }
+
+  @Get('myads/:id')
+  myAds(@Query() dto: DeviceQueryDto) {
+    return this.service.getMyAds(dto.id);
   }
 }

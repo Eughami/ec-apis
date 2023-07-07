@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Ad } from 'src/entities/Ad.entity';
 import { Category } from 'src/entities/Category.entity';
 import { Device } from 'src/entities/Device.entity';
 import { FavCat } from 'src/interfaces/device.dto';
@@ -9,6 +10,7 @@ import { Repository } from 'typeorm';
 export class DeviceService {
   constructor(
     @InjectRepository(Device) public repo: Repository<Device>,
+    @InjectRepository(Ad) public adRepo: Repository<Ad>,
     @InjectRepository(Category) public categoryRepo: Repository<Category>,
   ) {}
 
@@ -56,5 +58,10 @@ export class DeviceService {
     if (!device) throw new NotFoundException();
 
     return device;
+  }
+
+  async getMyAds(id: string) {
+    const ads = await this.adRepo.find({ where: { device: { id } } });
+    return ads;
   }
 }
