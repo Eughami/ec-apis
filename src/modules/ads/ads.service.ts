@@ -85,6 +85,6 @@ export class AdsService extends ExtendedCrudService<Ad> {
    * @param body
    */
   async startup(body: Partial<Log>) {
-    this.logRepo.save(body);
+    await this.logRepo.save(body);
   }
 }

@@ -18,3 +18,13 @@ export class DeviceQueryDto {
   @IsUUID('4')
   id: string;
 }
+
+export class DeviceAdViewDto {
+  @ApiProperty()
+  @IsUUID('4')
+  deviceId: string;
+
+  @ApiProperty()
+  @IsUUID('4')
+  adId: string;
+}

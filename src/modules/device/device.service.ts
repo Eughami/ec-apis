@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AdView } from 'src/entities/Ad-view.entity';
 import { Ad } from 'src/entities/Ad.entity';
 import { Category } from 'src/entities/Category.entity';
 import { Device } from 'src/entities/Device.entity';
-import { FavCat } from 'src/interfaces/device.dto';
+import { DeviceAdViewDto, FavCat } from 'src/interfaces/device.dto';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class DeviceService {
   constructor(
     @InjectRepository(Device) public repo: Repository<Device>,
     @InjectRepository(Ad) public adRepo: Repository<Ad>,
+    @InjectRepository(AdView) public adviewRepo: Repository<AdView>,
     @InjectRepository(Category) public categoryRepo: Repository<Category>,
   ) {}
 
@@ -63,5 +65,12 @@ export class DeviceService {
   async getMyAds(id: string) {
     const ads = await this.adRepo.find({ where: { device: { id } } });
     return ads;
+  }
+
+  async recordView(dto: DeviceAdViewDto) {
+    this.adviewRepo.save({
+      ad: { id: dto.adId },
+      device: { id: dto.deviceId },
+    });
   }
 }

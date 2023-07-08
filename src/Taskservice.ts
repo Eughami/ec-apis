@@ -82,7 +82,7 @@ export class TasksService {
     this.sendFavoritesNotifications(6);
   }
 
-  @Cron('53 15 * * *', { timeZone: 'Africa/Djibouti' })
+  @Cron('0 21 * * *', { timeZone: 'Africa/Djibouti' })
   async handleNightFavorites() {
     this.sendFavoritesNotifications(5);
   }
