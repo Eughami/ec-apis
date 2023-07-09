@@ -11,6 +11,7 @@ import { FileTypes } from 'src/enums/filetypes.enum';
 import { PinoLogger } from 'nestjs-pino';
 import { Log } from 'src/entities/Log.entity';
 import { AdView } from 'src/entities/Ad-view.entity';
+import { CrudRequest } from '@nestjsx/crud';
 
 @Injectable()
 export class AdsService extends ExtendedCrudService<Ad> {
@@ -116,5 +117,11 @@ export class AdsService extends ExtendedCrudService<Ad> {
     return {
       data: ads.map((a) => ({ ...a, count: viewPerAd[a.id] })),
     };
+  }
+
+  async getOne(req: CrudRequest): Promise<Ad & { count: number }> {
+    const ad = await super.getOne(req);
+    const count = await this.adViewRepo.count({ where: { ad } });
+    return { ...ad, count: count };
   }
 }

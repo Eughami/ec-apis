@@ -7,7 +7,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Crud, CrudController, Override } from '@nestjsx/crud';
+import {
+  Crud,
+  CrudController,
+  CrudRequest,
+  Override,
+  ParsedRequest,
+} from '@nestjsx/crud';
 import { crudGeneralOptions } from 'src/core-configs/crud.config';
 import { Ad } from 'src/entities/Ad.entity';
 import { AdsService } from './ads.service';
@@ -69,6 +75,13 @@ export class AdsController implements CrudController<Ad> {
   @Get('trending')
   trending() {
     return this.service.trending();
+  }
+
+  @Override('getOneBase')
+  getOneBase(
+    @ParsedRequest() req: CrudRequest,
+  ): Promise<Ad & { count: number }> {
+    return this.service.getOne(req);
   }
   //
   // TODO.Add an endpoint to get the top viewed ads for last week/month

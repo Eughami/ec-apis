@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DeviceService } from './device.service';
 import { Device } from 'src/entities/Device.entity';
@@ -24,7 +24,7 @@ export class DeviceController {
   }
 
   @Get(':id')
-  favorites(@Query() dto: DeviceQueryDto) {
+  favorites(@Param() dto: DeviceQueryDto) {
     return this.service.getDeviceWithFav(dto.id);
   }
 
