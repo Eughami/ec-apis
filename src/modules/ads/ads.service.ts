@@ -4,17 +4,19 @@ import { ExtendedCrudService } from 'src/core-configs/extended-crud-service.serv
 import { Ad } from 'src/entities/Ad.entity';
 import { Attachment } from 'src/entities/attachment.entity';
 import { FilePayload, NewAdPayload } from 'src/interfaces/ad.dto';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { FilesService } from '../files/files.service';
 import { Category } from 'src/entities/Category.entity';
 import { FileTypes } from 'src/enums/filetypes.enum';
 import { PinoLogger } from 'nestjs-pino';
 import { Log } from 'src/entities/Log.entity';
+import { AdView } from 'src/entities/Ad-view.entity';
 
 @Injectable()
 export class AdsService extends ExtendedCrudService<Ad> {
   constructor(
     @InjectRepository(Ad) public repo: Repository<Ad>,
+    @InjectRepository(AdView) public adViewRepo: Repository<AdView>,
     @InjectRepository(Attachment) public attachmentRepo: Repository<Attachment>,
     @InjectRepository(Category) public categoryRepo: Repository<Category>,
     @InjectRepository(Log) public logRepo: Repository<Log>,
@@ -86,5 +88,33 @@ export class AdsService extends ExtendedCrudService<Ad> {
    */
   async startup(body: Partial<Log>) {
     await this.logRepo.save(body);
+  }
+
+  /**
+   * * Top ads for last week
+   * @returns Ads[]
+   */
+  async trending() {
+    const topAds = await this.adViewRepo
+      .createQueryBuilder('views')
+      .select(['ad.id', 'count(*)'])
+      .leftJoinAndSelect('views.ad', 'ad')
+      .where(`views.createdAt > NOW() - INTERVAL '1 week'`)
+      .andWhere('ad.id IS NOT NULL')
+      .groupBy('ad.id')
+      .orderBy('count', 'DESC')
+      .limit(20)
+      .getRawMany();
+
+    const viewPerAd = {};
+    topAds.forEach((t) => (viewPerAd[t.ad_id] = t.count));
+    console.log(viewPerAd);
+    const ads = await this.repo.find({
+      where: { id: In(Object.keys(viewPerAd)) },
+      relations: ['category', 'attachment'],
+    });
+    return {
+      data: ads.map((a) => ({ ...a, count: viewPerAd[a.id] })),
+    };
   }
 }

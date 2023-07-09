@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   UploadedFiles,
   UseInterceptors,
@@ -19,13 +20,20 @@ import { Log } from 'src/entities/Log.entity';
     type: Ad,
   },
   routes: {
-    only: ['getManyBase', 'getOneBase', 'createOneBase', 'updateOneBase'],
+    only: [
+      'getManyBase',
+      'getOneBase',
+      'createOneBase',
+      'updateOneBase',
+      'deleteOneBase',
+    ],
   },
   query: {
     ...crudGeneralOptions.query,
     join: {
       category: { eager: true, allow: ['name'] },
       attachment: { eager: false, allow: ['path', 'position'] },
+      device: { eager: false, allow: ['id'] },
       views: { eager: false },
       user: { eager: false },
     },
@@ -58,6 +66,11 @@ export class AdsController implements CrudController<Ad> {
     return this.service.startup(body);
   }
 
+  @Get('trending')
+  trending() {
+    return this.service.trending();
+  }
+  //
   // TODO.Add an endpoint to get the top viewed ads for last week/month
   // TODO.Add relation between ad -> device  and also adView -> device
   // TODO.Add an additional payload for the get one (last week,last month, total views)
