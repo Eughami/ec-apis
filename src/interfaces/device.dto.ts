@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 import { CategoriesEnum } from 'src/enums/categories.enum';
 
 export class FavCat {
@@ -27,4 +34,15 @@ export class DeviceAdViewDto {
   @ApiProperty()
   @IsUUID('4')
   adId: string;
+}
+
+export class DeviceAdViewBulkDto {
+  @ApiProperty({
+    isArray: true,
+    type: DeviceAdViewDto,
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => DeviceAdViewDto)
+  bulk: DeviceAdViewDto[];
 }

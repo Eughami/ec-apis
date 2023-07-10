@@ -4,7 +4,11 @@ import { AdView } from 'src/entities/Ad-view.entity';
 import { Ad } from 'src/entities/Ad.entity';
 import { Category } from 'src/entities/Category.entity';
 import { Device } from 'src/entities/Device.entity';
-import { DeviceAdViewDto, FavCat } from 'src/interfaces/device.dto';
+import {
+  DeviceAdViewBulkDto,
+  DeviceAdViewDto,
+  FavCat,
+} from 'src/interfaces/device.dto';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -68,9 +72,17 @@ export class DeviceService {
   }
 
   async recordView(dto: DeviceAdViewDto) {
-    this.adviewRepo.save({
+    await this.adviewRepo.save({
       ad: { id: dto.adId },
       device: { id: dto.deviceId },
     });
+  }
+
+  async recordBulkViews(dto: DeviceAdViewBulkDto) {
+    const toSave = dto.bulk.map((v) => ({
+      ad: { id: v.adId },
+      device: { id: v.deviceId },
+    }));
+    await this.adviewRepo.save(toSave);
   }
 }

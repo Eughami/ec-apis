@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { DeviceService } from './device.service';
 import { Device } from 'src/entities/Device.entity';
 import {
+  DeviceAdViewBulkDto,
   DeviceAdViewDto,
   DeviceQueryDto,
   FavCat,
@@ -36,5 +37,10 @@ export class DeviceController {
   @Post('view')
   adview(@Body() dto: DeviceAdViewDto) {
     return this.service.recordView(dto);
+  }
+
+  @Post('view/bulk')
+  adviewBulk(@Body() dto: DeviceAdViewBulkDto) {
+    return this.service.recordBulkViews(dto);
   }
 }
