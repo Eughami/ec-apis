@@ -99,6 +99,7 @@ export class TasksService {
       .groupBy('category.name')
       .getRawMany();
 
+    if(!allAds.length) return
     const categoriesName = allAds.map((a) => a.categoryName);
     const ds = await this.deviceRepo
       .createQueryBuilder('devices')
