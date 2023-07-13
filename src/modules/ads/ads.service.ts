@@ -12,6 +12,14 @@ import { PinoLogger } from 'nestjs-pino';
 import { Log } from 'src/entities/Log.entity';
 import { AdView } from 'src/entities/Ad-view.entity';
 import { CrudRequest } from '@nestjsx/crud';
+import { Configuration, OpenAIApi } from 'openai';
+import { LanguagesEnum } from 'src/enums/langugages.enum';
+
+// this is to use ESM modules
+let franc;
+eval(`import('franc-min')`).then((module) => {
+  franc = module.franc;
+});
 
 @Injectable()
 export class AdsService extends ExtendedCrudService<Ad> {
@@ -28,23 +36,74 @@ export class AdsService extends ExtendedCrudService<Ad> {
     this.logger.setContext(AdsService.name);
   }
 
+  getLang(text: string): LanguagesEnum {
+    let lang = franc(text, {
+      only: ['fra', 'eng'],
+    });
+    if (lang !== LanguagesEnum.und)
+      lang = lang === 'fra' ? LanguagesEnum.fr : LanguagesEnum.en;
+    return lang;
+  }
+
+  async openAiTranslation(
+    title: string,
+    description: string,
+    isFrench: boolean,
+  ) {
+    try {
+      const configuration = new Configuration({
+        apiKey: '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',
+      });
+      const openai = new OpenAIApi(configuration);
+
+      const s = performance.now();
+      const translateTo = isFrench ? 'english' : 'french';
+      const response = await openai.createCompletion({
+        model: 'text-davinci-003',
+        prompt:
+          'translate values inside this json to ' +
+          translateTo +
+          '.DO NOT CHANGE THE KEYS\n' +
+          JSON.stringify({ key1: title, key2: description }),
+        temperature: 0.3,
+        max_tokens: 3000,
+        top_p: 1.0,
+        frequency_penalty: 0.0,
+        presence_penalty: 0.0,
+      });
+      this.logger.info(response.data.choices[0], 'OPENAI.response');
+      const res: string[] = Object.values(
+        JSON.parse(response.data.choices[0].text),
+      );
+
+      this.logRepo.save({
+        type: 'OPEN_AI_CALL',
+        payload: performance.now() - s,
+      });
+      return { title: res[0], description: res[1] };
+    } catch (err: any) {
+      this.logger.error('OPENAI request failed');
+      this.logger.error(err?.response?.data || err);
+    }
+  }
+
   async createAd(dto: NewAdPayload, files: FilePayload[] = []) {
-    console.log(dto);
     try {
       const category = await this.categoryRepo.findOne({
         where: { name: dto.category },
       });
-      console.log({ category });
+      const lang = this.getLang(dto.description);
+
       const ad = await this.repo.save({
         title: dto.title,
         description: dto.description,
         price: parseInt(dto.price) || undefined,
         isService: dto.isService === 'false',
         phone: dto.phone,
+        lang,
         category,
         device: { id: dto.deviceId },
       });
-      console.log({ ad });
 
       // Save Attachment
       let index = 0;
@@ -61,10 +120,23 @@ export class AdsService extends ExtendedCrudService<Ad> {
           ad.id,
           index++,
         );
-        console.log({ res });
         if (!res.success) {
           this.repo.softRemove(ad);
           throw new BadRequestException(res.msg);
+        }
+      }
+
+      if (lang !== LanguagesEnum.und) {
+        const translations = await this.openAiTranslation(
+          ad.title,
+          ad.description,
+          ad.lang === LanguagesEnum.fr,
+        );
+        if (translations.description && translations.title) {
+          await this.repo.update(ad.id, {
+            subtitle: translations.title,
+            subdesc: translations.description,
+          });
         }
       }
 
@@ -107,9 +179,9 @@ export class AdsService extends ExtendedCrudService<Ad> {
       .limit(20)
       .getRawMany();
 
+    if (!topAds.length) return { data: [] };
     const viewPerAd = {};
     topAds.forEach((t) => (viewPerAd[t.ad_id] = t.count));
-    console.log(viewPerAd);
     const ads = await this.repo.find({
       where: { id: In(Object.keys(viewPerAd)) },
       relations: ['category', 'attachment'],

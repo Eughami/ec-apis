@@ -4,6 +4,7 @@ import { Ad } from './Ad.entity';
 import { AdView } from './Ad-view.entity';
 import { Log } from './Log.entity';
 import { Category } from './Category.entity';
+import { LanguagesEnum } from 'src/enums/langugages.enum';
 
 @Entity()
 export class Device extends CoreEntity {
@@ -54,6 +55,9 @@ export class Device extends CoreEntity {
 
   @Column({ type: 'boolean', default: true })
   sendNotification: boolean;
+
+  @Column({ type: 'enum', enum: LanguagesEnum })
+  lang: LanguagesEnum;
 
   @OneToMany(() => Ad, (ad) => ad.device)
   deviceAds: Ad[];

@@ -17,6 +17,7 @@ import { User } from './User.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { Attachment } from './attachment.entity';
 import { Device } from './Device.entity';
+import { LanguagesEnum } from 'src/enums/langugages.enum';
 
 const { CREATE, UPDATE } = CrudValidationGroups;
 
@@ -72,6 +73,15 @@ export class Ad extends CoreEntity {
   @IsPositive()
   @Column({ type: 'bigint', nullable: true })
   price: number;
+
+  @Column({ type: 'enum', enum: LanguagesEnum })
+  lang: LanguagesEnum;
+
+  @Column({ type: 'text', nullable: true })
+  subtitle: string;
+
+  @Column({ type: 'text', nullable: true })
+  subdesc: string;
 
   @ApiProperty()
   @ManyToOne(() => Category)

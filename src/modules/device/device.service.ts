@@ -8,6 +8,7 @@ import {
   DeviceAdViewBulkDto,
   DeviceAdViewDto,
   FavCat,
+  changeLangDto,
 } from 'src/interfaces/device.dto';
 import { Repository } from 'typeorm';
 
@@ -84,5 +85,9 @@ export class DeviceService {
       device: { id: v.deviceId },
     }));
     await this.adviewRepo.save(toSave);
+  }
+
+  async changeLang(dto: changeLangDto) {
+    return await this.repo.update(dto.deviceId, { lang: dto.lang });
   }
 }

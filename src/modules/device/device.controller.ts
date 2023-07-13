@@ -7,6 +7,7 @@ import {
   DeviceAdViewDto,
   DeviceQueryDto,
   FavCat,
+  changeLangDto,
 } from 'src/interfaces/device.dto';
 
 @ApiTags('Device')
@@ -22,6 +23,11 @@ export class DeviceController {
   @Post('fav')
   favCat(@Body() dto: FavCat) {
     return this.service.favCat(dto);
+  }
+
+  @Post('lang')
+  changeLangue(@Body() dto: changeLangDto) {
+    return this.service.changeLang(dto);
   }
 
   @Get(':id')
