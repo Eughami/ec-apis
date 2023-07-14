@@ -74,7 +74,7 @@ export class Ad extends CoreEntity {
   @Column({ type: 'bigint', nullable: true })
   price: number;
 
-  @Column({ type: 'enum', enum: LanguagesEnum })
+  @Column({ type: 'enum', enum: LanguagesEnum, default: LanguagesEnum.und })
   lang: LanguagesEnum;
 
   @Column({ type: 'text', nullable: true })

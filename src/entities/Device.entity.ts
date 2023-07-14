@@ -56,7 +56,7 @@ export class Device extends CoreEntity {
   @Column({ type: 'boolean', default: true })
   sendNotification: boolean;
 
-  @Column({ type: 'enum', enum: LanguagesEnum })
+  @Column({ type: 'enum', enum: LanguagesEnum, default: LanguagesEnum.en })
   lang: LanguagesEnum;
 
   @OneToMany(() => Ad, (ad) => ad.device)
