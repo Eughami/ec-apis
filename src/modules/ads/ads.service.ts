@@ -52,7 +52,7 @@ export class AdsService extends ExtendedCrudService<Ad> {
   ) {
     try {
       const configuration = new Configuration({
-        apiKey: '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',
+        apiKey: process.env.OPENA_AI_API_KEY,
       });
       const openai = new OpenAIApi(configuration);
 
