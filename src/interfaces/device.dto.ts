@@ -8,6 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { CategoriesEnum } from 'src/enums/categories.enum';
+import { LanguagesEnum } from 'src/enums/langugages.enum';
 
 export class FavCat {
   @ApiProperty()
@@ -45,4 +46,15 @@ export class DeviceAdViewBulkDto {
   @ValidateNested({ each: true })
   @Type(() => DeviceAdViewDto)
   bulk: DeviceAdViewDto[];
+}
+
+export class changeLangDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsEnum(LanguagesEnum)
+  lang: LanguagesEnum;
+
+  @ApiProperty()
+  @IsUUID('4')
+  deviceId: string;
 }

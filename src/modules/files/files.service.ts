@@ -82,7 +82,6 @@ export class FilesService {
       const filePath = `${type}/${category}/${name}`;
       const appPath = join(rootPath, 'files', filePath);
 
-      console.log('filepath:', appPath);
       fs.writeFileSync(appPath, blob, {
         encoding: 'binary',
       });
@@ -91,7 +90,7 @@ export class FilesService {
         position,
         path: filePath,
       });
-      console.log(`Exec time for ${filePath} : ${performance.now() - cd}`);
+      this.logger.info(`Exec time for ${filePath} : ${performance.now() - cd}`);
       return { success: true };
     } catch (error) {
       this.logger.error(error, 'Save Attachment error');
