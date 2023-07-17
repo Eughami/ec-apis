@@ -9,7 +9,7 @@ import { Job } from 'bull';
 import { NotificationService } from './notification.service';
 import { DeviceFavNotifications } from 'src/interfaces/notification.dto';
 import { PinoLogger } from 'nestjs-pino';
-import { Expo } from 'expo-server-sdk';
+import { Expo, ExpoPushMessage } from 'expo-server-sdk';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from 'src/entities/Device.entity';
 import { Repository } from 'typeorm';
@@ -24,7 +24,7 @@ export class NotificationWorker {
     this.logger.setContext(NotificationWorker.name);
   }
 
-  singleCategoryNotification(token: string, category: string) {
+  singleCategoryNotification(token: string, category: string): ExpoPushMessage {
     return {
       to: token,
       title: `New ${category}`,
@@ -33,10 +33,11 @@ export class NotificationWorker {
         category,
         type: 'SINGLE_CATEGORY',
       },
+      priority: 'high',
     };
   }
 
-  multiCategoryNotification(token: string) {
+  multiCategoryNotification(token: string): ExpoPushMessage {
     return {
       to: token,
       title: `New Ads`,
@@ -45,6 +46,7 @@ export class NotificationWorker {
         category: null,
         type: 'MULTI_CATEGORY',
       },
+      priority: 'high',
     };
   }
 
