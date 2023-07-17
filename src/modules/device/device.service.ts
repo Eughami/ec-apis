@@ -86,7 +86,10 @@ export class DeviceService {
     }));
     await this.adviewRepo.save(toSave);
   }
-
+  async update(id: string) {
+    const device = await this.repo.findOne(id);
+    await this.repo.update(id, { sendNotification: !device.sendNotification });
+  }
   async changeLang(dto: changeLangDto) {
     return await this.repo.update(dto.deviceId, { lang: dto.lang });
   }

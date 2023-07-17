@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DeviceService } from './device.service';
 import { Device } from 'src/entities/Device.entity';
@@ -33,6 +41,11 @@ export class DeviceController {
   @Get(':id')
   favorites(@Param() dto: DeviceQueryDto) {
     return this.service.getDeviceWithFav(dto.id);
+  }
+
+  @Patch(':id')
+  update(@Param() dto: DeviceQueryDto) {
+    return this.service.update(dto.id);
   }
 
   @Get('myads/:id')
