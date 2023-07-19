@@ -13,6 +13,8 @@ import { Expo, ExpoPushMessage } from 'expo-server-sdk';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from 'src/entities/Device.entity';
 import { Repository } from 'typeorm';
+import { LanguagesEnum } from 'src/enums/langugages.enum';
+import { CategoriesEN, CategoriesFR } from 'src/enums/categories.enum';
 
 @Processor('notification')
 export class NotificationWorker {
@@ -24,11 +26,23 @@ export class NotificationWorker {
     this.logger.setContext(NotificationWorker.name);
   }
 
-  singleCategoryNotification(token: string, category: string): ExpoPushMessage {
+  singleCategoryNotification(
+    token: string,
+    category: string,
+    lang: LanguagesEnum,
+  ): ExpoPushMessage {
+    const title =
+      lang === LanguagesEnum.fr
+        ? CategoriesFR[category]
+        : CategoriesEN[category];
+    const description =
+      lang === LanguagesEnum.fr
+        ? `Des nouvelles annonces sur les ${CategoriesFR[category]} pourraient vous intéresser`
+        : `${CategoriesEN[category]} has some new ads you might like`;
     return {
       to: token,
-      title: `New ${category}`,
-      body: `${category} has some new ads you might like`,
+      title: title,
+      body: description,
       data: {
         category,
         type: 'SINGLE_CATEGORY',
@@ -37,11 +51,19 @@ export class NotificationWorker {
     };
   }
 
-  multiCategoryNotification(token: string): ExpoPushMessage {
+  multiCategoryNotification(
+    token: string,
+    lang: LanguagesEnum,
+  ): ExpoPushMessage {
+    const title = lang === LanguagesEnum.fr ? 'Nouvelles Annonces' : 'New Ads';
+    const description =
+      lang === LanguagesEnum.fr
+        ? 'Vos catégories favorites ont de nouvelles annonces qui pourraient vous intéresser'
+        : 'Your favorites categories have some new ads you might like';
     return {
       to: token,
-      title: `New Ads`,
-      body: `Your favorites categories have some new ads you might like.`,
+      title: title,
+      body: description,
       data: {
         category: null,
         type: 'MULTI_CATEGORY',
@@ -57,12 +79,16 @@ export class NotificationWorker {
       const messages = [];
 
       for (const ds of job.data) {
-        const token = Object.keys(ds)[0];
+        const keys = Object.keys(ds)[0].split('__');
+        const token = keys[0];
+        const lang = keys[1] ?? LanguagesEnum.en;
         const categories = ds[token];
         if (categories.length > 1)
-          messages.push(this.multiCategoryNotification(token));
+          messages.push(this.multiCategoryNotification(token, lang));
         else
-          messages.push(this.singleCategoryNotification(token, categories[0]));
+          messages.push(
+            this.singleCategoryNotification(token, categories[0], lang),
+          );
       }
       this.logger.info(messages, 'Sending these notifications with expo');
       const chunks = expo.chunkPushNotifications(messages);
@@ -91,9 +117,12 @@ export class NotificationWorker {
           ticket.status === 'error' &&
           ticket.details.error === 'DeviceNotRegistered'
         ) {
-          this.deviceRepo.softDelete({
-            token: ticket.details.expoPushToken,
-          });
+          this.deviceRepo.update(
+            { token: ticket.details.expoPushToken },
+            {
+              sendNotification: false,
+            },
+          );
         }
       }
       // TODO. In the future check for receipts to handle any issue from the expo side

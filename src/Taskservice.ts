@@ -99,7 +99,7 @@ export class TasksService {
       .groupBy('category.name')
       .getRawMany();
 
-    if(!allAds.length) return
+    if (!allAds.length) return;
     const categoriesName = allAds.map((a) => a.categoryName);
     const ds = await this.deviceRepo
       .createQueryBuilder('devices')
@@ -113,7 +113,7 @@ export class TasksService {
     const devices: DeviceFavNotifications[] = [];
     for (const device of ds) {
       devices.push({
-        [device.token]: this.findCommonElements(
+        [`${device.token}__${device.lang}`]: this.findCommonElements(
           device.favoriteCategories.map((c) => c.name),
           categoriesName,
         ),
