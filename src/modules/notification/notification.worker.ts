@@ -81,7 +81,7 @@ export class NotificationWorker {
       for (const ds of job.data) {
         const keys = Object.keys(ds)[0].split('__');
         const token = keys[0];
-        const lang = keys[1] ?? LanguagesEnum.en;
+        const lang: any = keys[1] ?? LanguagesEnum.en;
         const categories = ds[token];
         if (categories.length > 1)
           messages.push(this.multiCategoryNotification(token, lang));
