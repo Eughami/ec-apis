@@ -18,8 +18,9 @@ import { DeviceModule } from './modules/device/device.module';
 import { Ad } from './entities/Ad.entity';
 import { BullModule } from '@nestjs/bull';
 import { NotificationModule } from './modules/notification/notification.module';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { CustomExceptionFilter } from './custom-exception-filter';
+import { HeaderGuard } from './header.guard';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Device, HDT, Ad]),
@@ -47,6 +48,10 @@ import { CustomExceptionFilter } from './custom-exception-filter';
   ],
   controllers: [],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: HeaderGuard,
+    },
     {
       provide: APP_FILTER,
       useClass: CustomExceptionFilter,
