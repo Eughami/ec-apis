@@ -43,6 +43,16 @@ export class NewAdPayload {
   isService: string;
 
   @ApiProperty()
+  @IsOptional()
+  @IsString()
+  adDate: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  isPremium: string;
+
+  @ApiProperty()
   @IsUUID('4')
   deviceId: string;
 }

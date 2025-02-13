@@ -1,4 +1,3 @@
-import 'newrelic';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -7,7 +6,6 @@ import { Logger } from 'nestjs-pino';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CorrelationIdMiddleware } from './middlewares/correlation-id.middleware';
 import { middleware } from 'express-ctx';
-import { NewrelicInterceptor } from './newrelic.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -25,7 +23,6 @@ async function bootstrap() {
   // })
   // );
   app.use(middleware);
-  app.useGlobalInterceptors(new NewrelicInterceptor());
   app.use(CorrelationIdMiddleware());
   app.useLogger(logger);
   // app.use(json({ limit: '50mb' }));

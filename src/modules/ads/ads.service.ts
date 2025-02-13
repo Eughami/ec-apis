@@ -12,8 +12,8 @@ import { PinoLogger } from 'nestjs-pino';
 import { Log } from 'src/entities/Log.entity';
 import { AdView } from 'src/entities/Ad-view.entity';
 import { CrudRequest } from '@nestjsx/crud';
-import { Configuration, OpenAIApi } from 'openai';
 import { LanguagesEnum } from 'src/enums/langugages.enum';
+import { Mistral } from '@mistralai/mistralai';
 
 // this is to use ESM modules
 let franc;
@@ -51,38 +51,41 @@ export class AdsService extends ExtendedCrudService<Ad> {
     isFrench: boolean,
   ) {
     try {
-      const configuration = new Configuration({
-        apiKey: process.env.OPENA_AI_API_KEY,
+      const mistral = new Mistral({
+        apiKey: process.env['MISTRAL_API_KEY'] ?? '',
       });
-      const openai = new OpenAIApi(configuration);
 
       const s = performance.now();
       const translateTo = isFrench ? 'english' : 'french';
-      const response = await openai.createCompletion({
-        model: 'text-davinci-003',
-        prompt:
-          'translate values inside this json to ' +
-          translateTo +
-          '.DO NOT CHANGE THE KEYS\n' +
-          JSON.stringify({ key1: title, key2: description }),
-        temperature: 0.3,
-        max_tokens: 3000,
-        top_p: 1.0,
-        frequency_penalty: 0.0,
-        presence_penalty: 0.0,
+
+      const result = await mistral.chat.complete({
+        model: 'mistral-small-latest',
+        stream: false,
+        responseFormat: { type: 'json_object' },
+        messages: [
+          {
+            content:
+              'You are an expert translator for an ad business. translate values inside this json to ' +
+              translateTo +
+              '.DO NOT CHANGE THE KEYS AND DO NO GIVE ANY OTHER RESPONSE.BE PROFESSIONAL AND TRY TO CONVEY THE MEANING AS BEST AS POSSIBLE.\n' +
+              JSON.stringify({ key1: title, key2: description }),
+            role: 'user',
+          },
+        ],
       });
-      this.logger.info(response.data.choices[0], 'OPENAI.response');
+
+      this.logger.info(result, 'MistralAI.response');
       const res: string[] = Object.values(
-        JSON.parse(response.data.choices[0].text),
+        JSON.parse(result.choices[0].message.content as string),
       );
 
-      this.logRepo.save({
-        type: 'OPEN_AI_CALL',
+      console.log({
+        type: 'MISTRAL_AI_CALL',
         payload: performance.now() - s,
       });
       return { title: res[0], description: res[1] };
     } catch (err: any) {
-      this.logger.error('OPENAI request failed');
+      this.logger.error('AI translation request failed');
       this.logger.error(err?.response?.data || err);
     }
   }
@@ -93,6 +96,10 @@ export class AdsService extends ExtendedCrudService<Ad> {
         where: { name: dto.category },
       });
       const lang = this.getLang(dto.description);
+      let oldDate = new Date().toISOString();
+      if (dto.adDate) {
+        oldDate = new Date(dto.adDate).toISOString();
+      }
 
       const ad = await this.repo.save({
         title: dto.title,
@@ -101,6 +108,9 @@ export class AdsService extends ExtendedCrudService<Ad> {
         isService: dto.isService === 'false',
         phone: dto.phone,
         lang,
+        isPremium: dto.isPremium === 'false',
+        createdAt: oldDate,
+        updatedAt: oldDate,
         category,
         device: { id: dto.deviceId },
       });
