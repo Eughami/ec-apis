@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     ports:
-      - '35000:3500'
+      - '127.0.0.1:35000:3500'
     depends_on:
       - postgres
       - rediscache
@@ -37,7 +37,7 @@ services:
     env_file:
       - .env
     ports:
-      - '54320:5432'
+      - '127.0.0.1:54320:5432'
     volumes:
       - ./docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
       - dahabo_data:/var/lib/postgresql/data
@@ -46,7 +46,7 @@ services:
     image: redis
     container_name: redis-cache
     ports:
-      - 32769:6379
+      - '127.0.0.1:32769:6379'
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - redis-data:/data
