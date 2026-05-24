@@ -19,17 +19,17 @@ services:
       - /usr/src/app/node_modules
       - /root/files:/files
 
-  dahabo-ui:
-    image: 'dahabo/ui'
-    container_name: 'dahabo-ui'
-    #env_file:
-    #  - .env
-    environment:
-      REACT_APP_API_ENDPOINT_URL: http://localhost:33340/api/v1/admin
-    ports:
-      - '30000:3000'
-    depends_on:
-      - dahabo-api
+  # dahabo-ui:
+  #   image: 'dahabo/ui'
+  #   container_name: 'dahabo-ui'
+  #   #env_file:
+  #   #  - .env
+  #   environment:
+  #     REACT_APP_API_ENDPOINT_URL: http://localhost:33340/api/v1/admin
+  #   ports:
+  #     - '30000:3000'
+  #   depends_on:
+  #     - dahabo-api
 
   postgres:
     image: 'postgres:15.1'
